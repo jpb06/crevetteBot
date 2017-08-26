@@ -1,6 +1,6 @@
 const Discord = require('discord.js');
 const scoresManager = require('./../business/scoresManager.js');
-const commandsUsage = require('./../business/commands/commandsUsage.js');
+const commandsDescriptions = require('./../business/commands/commandsDescriptions.js');
 
 module.exports = {
     botAvatarUrl:'',
@@ -16,44 +16,57 @@ module.exports = {
 
         return embed;
     },
+    populateCommandsDescription: function(embed) {
+        embed.addField('!help', 'Get help!\n\n'+
+                                 commandsDescriptions.helpUsage())
+             .addField('!gaem', 'Registers game results between two players.\n\n'+
+                                 commandsDescriptions.gaemUsage())
+             .addField('!stat', 'Displays the stats of a player.\n\n'+
+                                 commandsDescriptions.statUsage())
+             .addField('!top',  'Displays top 10 players.\n\n'+
+                                 commandsDescriptions.topUsage());
+        
+        return embed;
+    },
     populateLoadedNotification: function() {
         let embed = this.generateGeneric()
             .setTitle('CrevetteBot successfully loaded')
-            .setDescription('I am now ready for action!\nCurrent commands are the following :')
-            .addField('!gaem', 'Registers game results between two players.\n\n'+
-                                commandsUsage.gaem())
-            .addField('!stat', 'Displays the stats of a player.\n\n'+
-                                commandsUsage.stat())
-            .addField('!top',  'Displays top 10 players.\n\n'+
-                                commandsUsage.top())
+            .setDescription('I am now ready for action!\nCurrent commands are the following :');
+     
+        return this.populateCommandsDescription(embed);
+    },
+    populateHelp:function(){
+        let embed = this.generateGeneric()
+            .setTitle('CrevetteBot is handling gaming stats for you!')
+            .setDescription('I am doing my best to answer your requests. Please take a look at the following commands :');
 
-        return embed;
+        return this.populateCommandsDescription(embed);
     },
     populateGaemError: function(authorName, authorAvatarUrl, errors){
         let embed = this.generateGeneric()
             .setColor(10684167)
             .setAuthor(authorName, authorAvatarUrl)
             .setTitle('Invalid request')
-            .setDescription(commandsUsage.gaem())
+            .setDescription(commandsDescriptions.gaemUsage())
             .addField('Errors', errors);
         
         return embed;
     },
     populateStatError: function(authorName, authorAvatarUrl, errors){
-            let embed = this.generateGeneric()
+        let embed = this.generateGeneric()
             .setColor(10684167)
             .setAuthor(authorName, authorAvatarUrl)
             .setTitle('Invalid request')
-            .setDescription(commandsUsage.stat())
+            .setDescription(commandsDescriptions.statUsage())
             .addField('Errors', errors);
 
-            return embed;
+        return embed;
     },
     populateNoDataForUser: function(authorName, authorAvatarUrl, user) {
         let embed = this.generateGeneric()
-        .setColor(10684167)
-        .setAuthor(authorName, authorAvatarUrl)
-        .setTitle(`${user} is not registered yet`);
+            .setColor(10684167)
+            .setAuthor(authorName, authorAvatarUrl)
+            .setTitle(`${user} is not registered yet`);
 
         return embed;
     },

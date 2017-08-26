@@ -19,13 +19,10 @@ client.on('ready', async () => {
 
   await client.user.setGame(`on ${client.guilds.size} servers`);
   
-  client.guilds.forEach(guild => {
-     let channel = guild.channels.find(channel => channel.name === botSettings.defaultChannel);
-     channel.send({tts:false, embed: embedHelper.populateLoadedNotification()});
-  })
-
-  // var channel = client.channels.find("name", botSettings.defaultChannel);
-  // channel.send({tts:false, embed: embedHelper.populateLoadedNotification()});
+  // client.guilds.forEach(guild => {
+  //     let channel = guild.channels.find(channel => channel.name === botSettings.defaultChannel);
+  //     channel.send({tts:false, embed: embedHelper.populateLoadedNotification()});
+  // });
   
   db.createDatabase();
 
@@ -147,11 +144,19 @@ client.on('message', async message => {
      top command | !top
      ------------------------------------------------------------------------------------------- */
   if(command === `${botSettings.prefix}top`) {
-      db.getUsersByRank().then(data => {
-        message.channel.send({
-          embed: embedHelper.populateRanks(client.user.username, client.user.avatarURL, data.slice(0, 10), data.length)
-        });
+    db.getUsersByRank().then(data => {
+      message.channel.send({
+        embed: embedHelper.populateRanks(client.user.username, client.user.avatarURL, data.slice(0, 10), data.length)
       });
+    });
+  }
+  /* ------------------------------------------------------------------------------------------- 
+     help command | !top
+     ------------------------------------------------------------------------------------------- */
+  if(command === `${botSettings.prefix}help`) {
+    message.channel.send({
+      embed: embedHelper.populateHelp()
+    });
   }
 });
 /* ----------------------------------------------------------------------------------------------- */

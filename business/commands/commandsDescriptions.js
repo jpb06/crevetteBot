@@ -1,5 +1,5 @@
 module.exports = {
-    gaem:function(){
+    gaemUsage: function() {
         return 'Command usage :\n'+
                '```!gaem @mention1 integer1 @mention2 integer2```\n'+
                'Where :\n'+
@@ -8,14 +8,18 @@ module.exports = {
                '\t**__@mention2__** is player 2 discord identifier.\n'+
                '\t**__integer2__** is the number of games won by player 2.\n';
     },
-    stat:function(){
+    statUsage: function() {
         return 'Command usage :\n'+
                '```!stat @mention```\n'+
                'Where :\n'+
                '\t**__@mention__** is the player discord identifier.\n';
     },
-    top:function(){
+    topUsage: function() {
         return 'Command usage :\n'+
-               '```!top```\n'
+               '```!top```\n';
+    },
+    helpUsage: function() {
+        return 'Command usage :\n'+
+               '```!help```\n';
     }
 }
