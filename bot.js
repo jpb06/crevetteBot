@@ -131,7 +131,7 @@ client.on('message', async message => {
   if(command === `${botSettings.prefix}top`) {
       db.getUsersByRank().then(data => {
         message.channel.send({
-          embed: embedHelper.populateRanks(client.user.username, client.user.avatarURL, data)
+          embed: embedHelper.populateRanks(client.user.username, client.user.avatarURL, data.slice(0, 10), data.length)
         });
       });
   }

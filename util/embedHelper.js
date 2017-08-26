@@ -87,19 +87,17 @@ module.exports = {
 
         return embed;
     },
-    populateRanks: function(authorName, authorAvatarUrl, users){
-        //userId, name, avatarUrl, wins, losses, streak
-
+    populateRanks: function(authorName, authorAvatarUrl, users, totalPlayers){
         let embed = this.generateGeneric()
             .setColor(3447003)
             .setAuthor(authorName, authorAvatarUrl)
-            .setTitle('Top players by rank')
+            .setTitle('Top 10 players by rank')
             .setDescription('These are the best DoWpro players');
 
         users.forEach((el, index) => {
             let ratio = scoresManager.calculateRatio(el.wins, el.losses);
 
-            embed.addField(`${el.name} ${index+1} / ${users.length}`, `${el.wins} wins / ${el.losses} losses\n` +
+            embed.addField(`${el.name} - ${index+1} / ${totalPlayers}`, `${el.wins} wins / ${el.losses} losses\n` +
                                                                       `Ratio : ${ratio}`);
         });
 
