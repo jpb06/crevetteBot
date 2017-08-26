@@ -1,4 +1,5 @@
 const Discord = require('discord.js');
+const scoresManager = require('./../business/scoresManager.js');
 
 module.exports = {
     botAvatarUrl:'',
@@ -14,7 +15,7 @@ module.exports = {
 
         return embed;
     },
-    populateLoadedNotification: function(){
+    populateLoadedNotification: function() {
         let embed = this.generateGeneric()
             .setTitle('CrevetteBot successfully loaded')
             .setDescription('I am now ready for action!');
@@ -73,7 +74,7 @@ module.exports = {
         return embed;
     },
     populateUserStat: function(authorName, authorAvatarUrl, userData, rank, totalPlayers) {
-        let ratio = Math.round(((userData.wins * 100) / userData.losses) * 100) / 100;
+        let ratio = scoresManager.calculateRatio(userData.wins, userData.losses);
 
         let embed = this.generateGeneric()
             .setColor(3447003)

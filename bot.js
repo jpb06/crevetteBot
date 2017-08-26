@@ -17,17 +17,17 @@ client.on('ready', async () => {
   console.log(`I am ready! ${client.user.username} `); // ${client.user.avatarURL}
   embedHelper.botAvatarUrl = client.user.avatarURL;
   
-  var channel = client.channels.find("name", botSettings.defaultChannel);
-  channel.send({tts:false, embed: embedHelper.populateLoadedNotification()});
+  // var channel = client.channels.find("name", botSettings.defaultChannel);
+  // channel.send({tts:false, embed: embedHelper.populateLoadedNotification()});
   
   db.createDatabase();
 
-  inviteLink.generate(client);
+  // inviteLink.generate(client);
 });
 
 client.on('message', async message => {
   if(message.author.bot) return; // not replying to others bots
-  if(message.channel.type === 'dm') return; // direct messages should be ignored
+  if(message.channel.type === 'dm' || message.channel.name !== botSettings.defaultChannel) return; // direct messages should be ignored
   if(!message.content.startsWith(botSettings.prefix)) return; // ignoring messages not starting with command prefix
 
   let messageChunks = message.content.split(' ');

@@ -15,7 +15,12 @@ module.exports = {
         return sql.get(`SELECT * FROM scores WHERE userId = "${userId}"`);
     },
     getUserRank: function(){
-        return sql.all(`SELECT userId FROM scores ORDER BY ((wins*100)/losses) DESC;`);
+        return sql.all('SELECT userId, '+
+                       'CASE WHEN wins = 0 THEN 0.0 '+
+                            'WHEN losses = 0 THEN 100.0 '+
+                            'ELSE ((1.0 * wins / ( wins + losses )) * 100.0) '+
+                       'END as ratio '+
+                       'FROM scores ORDER BY ratio DESC, wins DESC;');
     },
     updateUserStats: function(userId, wins, losses, streak) {
         return sql.run(`UPDATE scores SET wins = ${wins}, losses = ${losses}, streak = ${streak} WHERE userId = ${userId}`);

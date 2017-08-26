@@ -44,5 +44,16 @@ module.exports = {
             this.isDraw = true;
         }
         return this;
+    },
+    "calculateRatio": function(wins, losses){
+        let ratio;
+        if(wins === 0) {
+            ratio = 0;
+        } else if(losses === 0) {
+            ratio = 100;
+        } else {
+            ratio = Math.round(((wins / (wins + losses)) * 100) * 100) / 100;
+        }
+        return ratio;
     }
 }
