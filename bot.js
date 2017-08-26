@@ -18,8 +18,8 @@ client.on('ready', async () => {
   console.log(`I am ready! ${client.user.username} `); // ${client.user.avatarURL}
   embedHelper.botAvatarUrl = client.user.avatarURL;
   
-  // var channel = client.channels.find("name", botSettings.defaultChannel);
-  // channel.send({tts:false, embed: embedHelper.populateLoadedNotification()});
+  var channel = client.channels.find("name", botSettings.defaultChannel);
+  channel.send({tts:false, embed: embedHelper.populateLoadedNotification()});
   
   db.createDatabase();
 
@@ -124,5 +124,15 @@ client.on('message', async message => {
         }
       });
     }
+  }
+  /* ------------------------------------------------------------------------------------------- 
+     top command | !top
+     ------------------------------------------------------------------------------------------- */
+  if(command === `${botSettings.prefix}top`) {
+      db.getUsersByRank().then(data => {
+        message.channel.send({
+          embed: embedHelper.populateRanks(client.user.username, client.user.avatarURL, data)
+        });
+      });
   }
 });
