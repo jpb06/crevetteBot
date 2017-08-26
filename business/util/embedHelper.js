@@ -1,6 +1,6 @@
 const Discord = require('discord.js');
-const scoresManager = require('./../business/scoresManager.js');
-const commandsDescriptions = require('./../business/commands/commandsDescriptions.js');
+const scoresManager = require('./../ranking/scoresManager.js');
+const commandsDescriptions = require('./../commands/commandsDescriptions.js');
 
 module.exports = {
     botAvatarUrl:'',

@@ -4,13 +4,13 @@ const client = new Discord.Client({
 });
 
 const botSettings = require('./botsettings.json');
-const arguments = require('./business/argumentsChecking.js');
-const scores = require('./business/scoresManager.js');
-const inviteLink = require('./util/inviteLink.js');
-const embedHelper = require('./util/embedHelper.js');
+const arguments = require('./business/commands/argumentsChecking.js');
+const scores = require('./business/ranking/scoresManager.js');
+const inviteLink = require('./business/util/inviteLink.js');
+const embedHelper = require('./business/util/embedHelper.js');
+const usersHelper = require('./business/dal/usersHelper');
 
 const db = require('./business/dal/storage/sqlitestore.js');
-const usersHelper = require('./business/dal/usersHelper');
 
 /* ----------------------------------------------------------------------------------------------- */
 client.on('ready', async () => {
@@ -151,7 +151,7 @@ client.on('message', async message => {
     });
   }
   /* ------------------------------------------------------------------------------------------- 
-     help command | !top
+     help command | !help
      ------------------------------------------------------------------------------------------- */
   if(command === `${botSettings.prefix}help`) {
     message.channel.send({
