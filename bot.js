@@ -46,14 +46,14 @@ client.on('message', async message => {
   if(message.channel.type === 'dm' || message.channel.name !== botSettings.defaultChannel) return; // direct messages should be ignored
   if(!message.content.startsWith(botSettings.prefix)) return; // ignoring messages not starting with command prefix
 
-  let messageChunks = message.content.split(' ');
+  let messageChunks = message.content.slice(botSettings.prefix.length).trim().split(/ +/g);
   let command = messageChunks[0];
   let args = messageChunks.slice(1);
 
   /* ------------------------------------------------------------------------------------------- 
      gaem command | !gaem @user1 10 @user2 5
      ------------------------------------------------------------------------------------------- */
-  if(command === `${botSettings.prefix}gaem`) {
+  if(command === 'gaem') { 
 
     let mentions = message.mentions.users.array();
     let errors = arguments.CheckGaemArgs(args, mentions.length);
@@ -112,7 +112,7 @@ client.on('message', async message => {
   /* ------------------------------------------------------------------------------------------- 
      stat command | !stat @user
      ------------------------------------------------------------------------------------------- */
-  if(command === `${botSettings.prefix}stat`) {
+  if(command === 'stat') {
     let mentions = message.mentions.users.array();
     let errors = arguments.CheckStatArgs(args, mentions.length);
 
@@ -143,7 +143,7 @@ client.on('message', async message => {
   /* ------------------------------------------------------------------------------------------- 
      top command | !top
      ------------------------------------------------------------------------------------------- */
-  if(command === `${botSettings.prefix}top`) {
+  if(command === 'top') {
     db.getUsersByRank().then(data => {
       message.channel.send({
         embed: embedHelper.populateRanks(client.user.username, client.user.avatarURL, data.slice(0, 10), data.length)
@@ -153,7 +153,7 @@ client.on('message', async message => {
   /* ------------------------------------------------------------------------------------------- 
      help command | !help
      ------------------------------------------------------------------------------------------- */
-  if(command === `${botSettings.prefix}help`) {
+  if(command === 'help') {
     message.channel.send({
       embed: embedHelper.populateHelp()
     });
