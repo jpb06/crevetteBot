@@ -1,5 +1,6 @@
 const Discord = require('discord.js');
 const scoresManager = require('./../business/scoresManager.js');
+const commandsUsage = require('./../business/commands/commandsUsage.js');
 
 module.exports = {
     botAvatarUrl:'',
@@ -18,7 +19,13 @@ module.exports = {
     populateLoadedNotification: function() {
         let embed = this.generateGeneric()
             .setTitle('CrevetteBot successfully loaded')
-            .setDescription('I am now ready for action!');
+            .setDescription('I am now ready for action!\nCurrent commands are the following :')
+            .addField('!gaem', 'Registers game results between two players.\n\n'+
+                                commandsUsage.gaem())
+            .addField('!stat', 'Displays the stats of a player.\n\n'+
+                                commandsUsage.stat())
+            .addField('!top',  'Displays top 10 players.\n\n'+
+                                commandsUsage.top())
 
         return embed;
     },
@@ -27,13 +34,7 @@ module.exports = {
             .setColor(10684167)
             .setAuthor(authorName, authorAvatarUrl)
             .setTitle('Invalid request')
-            .setDescription('Command usage :\n'+
-                            '```!gaem @mention1 integer1 @mention2 integer2```\n'+
-                            'Where :\n'+
-                            '\t**__@mention1__** is player 1 discord identifier.\n'+
-                            '\t**__integer1__** is the number of games won by player 1.\n'+
-                            '\t**__@mention2__** is player 2 discord identifier.\n'+
-                            '\t**__integer2__** is the number of games won by player 2.')
+            .setDescription(commandsUsage.gaem())
             .addField('Errors', errors);
         
         return embed;
@@ -43,10 +44,7 @@ module.exports = {
             .setColor(10684167)
             .setAuthor(authorName, authorAvatarUrl)
             .setTitle('Invalid request')
-            .setDescription('Command usage :\n'+
-                    '```!stat @mention```\n'+
-                    'Where :\n'+
-                    '\t**__@mention__** is the player discord identifier.\n')
+            .setDescription(commandsUsage.stat())
             .addField('Errors', errors);
 
             return embed;

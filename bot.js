@@ -12,20 +12,38 @@ const embedHelper = require('./util/embedHelper.js');
 const db = require('./business/dal/storage/sqlitestore.js');
 const usersHelper = require('./business/dal/usersHelper');
 
-client.login(botSettings.token);
-
+/* ----------------------------------------------------------------------------------------------- */
 client.on('ready', async () => {
   console.log(`I am ready! ${client.user.username} `); // ${client.user.avatarURL}
   embedHelper.botAvatarUrl = client.user.avatarURL;
+
+  await client.user.setGame(`on ${client.guilds.size} servers`);
   
-  var channel = client.channels.find("name", botSettings.defaultChannel);
-  channel.send({tts:false, embed: embedHelper.populateLoadedNotification()});
+  client.guilds.forEach(guild => {
+     let channel = guild.channels.find(channel => channel.name === botSettings.defaultChannel);
+     channel.send({tts:false, embed: embedHelper.populateLoadedNotification()});
+  })
+
+  // var channel = client.channels.find("name", botSettings.defaultChannel);
+  // channel.send({tts:false, embed: embedHelper.populateLoadedNotification()});
   
   db.createDatabase();
 
   // inviteLink.generate(client);
 });
-
+/* ----------------------------------------------------------------------------------------------- */
+client.on("guildCreate", guild => {
+  // This event triggers when the bot joins a guild.
+  console.log(`New guild joined: ${guild.name} (id: ${guild.id}). This guild has ${guild.memberCount} members!`);
+  client.user.setGame(`on ${client.guilds.size} servers`);
+});
+/* ----------------------------------------------------------------------------------------------- */
+client.on("guildDelete", guild => {
+  // this event triggers when the bot is removed from a guild.
+  console.log(`I have been removed from: ${guild.name} (id: ${guild.id})`);
+  client.user.setGame(`on ${client.guilds.size} servers`);
+});
+/* ----------------------------------------------------------------------------------------------- */
 client.on('message', async message => {
   if(message.author.bot) return; // not replying to others bots
   if(message.channel.type === 'dm' || message.channel.name !== botSettings.defaultChannel) return; // direct messages should be ignored
@@ -136,3 +154,5 @@ client.on('message', async message => {
       });
   }
 });
+/* ----------------------------------------------------------------------------------------------- */
+client.login(botSettings.token);
