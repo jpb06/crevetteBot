@@ -14,8 +14,8 @@ module.exports = {
     getUser: function(userId) {
         return sql.get(`SELECT * FROM scores WHERE userId = "${userId}"`);
     },
-    getUserRank: function(){
-        return sql.all('SELECT userId, '+
+    getUsersByRank: function(){
+        return sql.all('SELECT userId, name, avatarUrl, wins, losses, streak, '+
                        'CASE WHEN wins = 0 THEN 0.0 '+
                             'WHEN losses = 0 THEN 100.0 '+
                             'ELSE ((1.0 * wins / ( wins + losses )) * 100.0) '+

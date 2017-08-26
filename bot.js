@@ -9,7 +9,8 @@ const scores = require('./business/scoresManager.js');
 const inviteLink = require('./util/inviteLink.js');
 const embedHelper = require('./util/embedHelper.js');
 
-const db = require('./business/storage/sqlitestore.js');
+const db = require('./business/dal/storage/sqlitestore.js');
+const usersHelper = require('./business/dal/usersHelper');
 
 client.login(botSettings.token);
 
@@ -55,28 +56,12 @@ client.on('message', async message => {
          let dbUser1, dbUser2;
 
          if(!values[0]) {
-           db.createUser(user1.id, user1.username, user1.avatarURL);
-           dbUser1 = {
-             "userId": user1.id,
-             "name": user1.username,
-             "avatarUrl": user1.avatarURL,
-             "wins": 0,
-             "losses": 0,
-             "streak": 0
-           };
+          dbUser1 = usersHelper.createUser(user1.id, user1.username, user1.avatarURL);
          } else {
           dbUser1 = values[0];
          }
          if(!values[1]) {
-           db.createUser(user2.id, user2.username, user2.avatarURL);
-           dbUser2 = {
-            "userId": user2.id,
-            "name": user2.username,
-            "avatarUrl": user2.avatarURL,
-            "wins": 0,
-            "losses": 0,
-            "streak": 0
-          };
+          dbUser2 = usersHelper.createUser(user2.id, user2.username, user2.avatarURL);
          } else {
           dbUser2 = values[1];
          }
@@ -125,7 +110,7 @@ client.on('message', async message => {
 
       db.getUser(user.id).then(userData => {
         if(userData){
-          db.getUserRank().then(data => {
+          db.getUsersByRank().then(data => {
             let rank = data.findIndex(i => i.userId === user.id) + 1;
 
             message.channel.send({
