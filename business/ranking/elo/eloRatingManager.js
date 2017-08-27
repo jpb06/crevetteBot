@@ -10,5 +10,15 @@ module.exports = {
         else k = 16;
 
         return k;
+    }, 
+    calculateD: function(eloRating1, eloRating2){
+        // capping d at 400
+
+        let d = eloRating1 - eloRating2;
+        if(Math.abs(d) > 400) {
+            return d > 0 ? 400 : -400;
+        }
+
+        return d;
     }
 }

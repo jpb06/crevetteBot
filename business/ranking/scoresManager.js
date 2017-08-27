@@ -65,7 +65,7 @@ module.exports = {
         return ratio;
     },
     "calculateEloRatingsFromSingleEncounter": function() {
-        let d  = this.player1.eloRating - this.player2.eloRating;
+        let d = eloRatingManager.calculateD(this.player1.eloRating, this.player2.eloRating);
         let player1GainProbability = 1 / (1 + Math.pow(10, -d/400));
 
         let w = (this.winner.name === this.player1.name) ? 1 : 0;
@@ -79,7 +79,7 @@ module.exports = {
         this.player2.eloRating = this.player2.eloRating - points;
     },
     "calculateEloRatingsFromMultipleResults" : function(actedUponPlayer, impactedPlayer){
-        let d  = actedUponPlayer.eloRating - impactedPlayer.eloRating;
+        let d = eloRatingManager.calculateD(actedUponPlayer.eloRating, impactedPlayer.eloRating);
         let actedUponPlayerGainProbability = 1 / (1 + Math.pow(10, -d/400));
 
         let w = actedUponPlayer.score;
