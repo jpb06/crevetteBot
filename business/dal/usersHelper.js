@@ -9,7 +9,7 @@ module.exports = {
           "avatarUrl": avatar,
           "wins": 0,
           "losses": 0,
-          "streak": 0
+          "eloRating": 1000
         };
     }
 }

@@ -25,5 +25,15 @@ module.exports = {
         errors += '\nArgument should be a mention';
 
       return errors;
+    },
+    CheckTopArgs : function(args) {
+      let errors = '';
+      
+      if(args.length != 1)
+        errors = 'Expecting 1 argument';
+      if(args[0] !== 'byratio' && args[0] !== 'byelo')
+        errors += 'argument should be either byratio or byelo';
+
+      return errors;
     }
 }

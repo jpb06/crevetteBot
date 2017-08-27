@@ -46,7 +46,7 @@ client.on('message', async message => {
   if(message.channel.type === 'dm' || message.channel.name !== botSettings.defaultChannel) return; // direct messages should be ignored
   if(!message.content.startsWith(botSettings.prefix)) return; // ignoring messages not starting with command prefix
 
-  let messageChunks = message.content.slice(botSettings.prefix.length).trim().split(/ +/g);
+  let messageChunks = message.content.toLowerCase().slice(botSettings.prefix.length).trim().split(/ +/g);
   let command = messageChunks[0];
   let args = messageChunks.slice(1);
 
@@ -90,7 +90,8 @@ client.on('message', async message => {
           user2Score = Number.parseInt(args[1]);
          }
 
-         let scoreResult = scores.resolve(user1.username, user1Score, user2.username, user2Score);
+         let scoreResult = scores.resolve(user1.username, user1Score, dbUser1.eloRating, 
+                                          user2.username, user2Score, dbUser2.eloRating);
          
          scoreResult.player1.totalWins = dbUser1.wins += scoreResult.player1.score;
          scoreResult.player1.totalLosses = dbUser1.losses += scoreResult.player2.score;
@@ -100,11 +101,12 @@ client.on('message', async message => {
 
        //  console.log(scoreResult);
          
-         db.updateUserStats(dbUser1.userId, dbUser1.wins, dbUser1.losses, 0);
-         db.updateUserStats(dbUser2.userId, dbUser2.wins, dbUser2.losses, 0);
+         db.updateUserStats(dbUser1.userId, dbUser1.wins, dbUser1.losses, scoreResult.player1.eloRating);
+         db.updateUserStats(dbUser2.userId, dbUser2.wins, dbUser2.losses, scoreResult.player2.eloRating);
 
          message.channel.send({
-           embed: embedHelper.populateReport(message.author.username, message.author.avatarURL, scoreResult)
+           embed: embedHelper.populateReport(message.author.username, message.author.avatarURL, 
+                                             dbUser1.eloRating, dbUser2.eloRating, scoreResult)
          });
       });
     }
@@ -125,11 +127,12 @@ client.on('message', async message => {
 
       db.getUser(user.id).then(userData => {
         if(userData){
-          db.getUsersByRank().then(data => {
-            let rank = data.findIndex(i => i.userId === user.id) + 1;
+          db.getUsersByRatioRank().then(data => {
+            let ratioRank = data.findIndex(i => i.userId === user.id) + 1;
+            let eloRank = data.sort((a, b) => b.eloRating - a.eloRating).findIndex(i => i.userId === user.id)+1;
 
             message.channel.send({
-              embed: embedHelper.populateUserStat(client.user.username, client.user.avatarURL, userData, rank, data.length)
+              embed: embedHelper.populateUserStat(client.user.username, client.user.avatarURL, userData, eloRank, ratioRank, data.length)
             });
           });
         } else {
@@ -141,14 +144,32 @@ client.on('message', async message => {
     }
   }
   /* ------------------------------------------------------------------------------------------- 
-     top command | !top
+     top command | !top <byratio | byelo>
      ------------------------------------------------------------------------------------------- */
   if(command === 'top') {
-    db.getUsersByRank().then(data => {
+    let errors = arguments.CheckTopArgs(args);
+    
+    if(errors.length != 0) {
       message.channel.send({
-        embed: embedHelper.populateRanks(client.user.username, client.user.avatarURL, data.slice(0, 10), data.length)
+        embed: embedHelper.populateTopError(client.user.username, client.user.avatarURL, errors)
       });
-    });
+    } else {
+      db.getUsersByRatioRank().then(data => {
+        let ordered;
+        let by;
+        if(args[0] === 'byratio'){ 
+          ordered = data;
+          by = 'ratio';
+        } else { 
+          ordered = data.sort((a, b) => b.eloRating - a.eloRating);
+          by = 'elo';
+        }
+
+        message.channel.send({
+          embed: embedHelper.populateTop(client.user.username, client.user.avatarURL, ordered.slice(0, 10), data.length, by)
+        });
+      });
+    }
   }
   /* ------------------------------------------------------------------------------------------- 
      help command | !help
