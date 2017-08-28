@@ -101,7 +101,7 @@ module.exports = {
             case '2p_meeting_of_minds_pro_lis_v1': return 'http://i.imgur.com/HKUE0ao.jpg';
             case '2p_outer_reaches_remix': return 'http://i.imgur.com/TLLlV7l.jpg';
             case '2p_refinery': return 'http://i.imgur.com/sFlILVy.jpg';
-            default: return 'http://i.imgur.com/oBBZtML.png';
+            default: return 'http://i.imgur.com/WtdNQUs.jpg';
         }
     },
     "mapRace": function(raceIdentifier) {
