@@ -1,6 +1,7 @@
 const Discord = require('discord.js');
 const scoresManager = require('./../ranking/scoresManager.js');
 const commandsDescriptions = require('./../commands/commandsDescriptions.js');
+const mapper = require('./../config/mapper.js');
 
 module.exports = {
     botAvatarUrl:'',
@@ -124,6 +125,35 @@ module.exports = {
                                                                         `elo rating : ${el.eloRating}\n`+
                                                                         `Ratio : ${ratio}`);
         });
+
+        return embed;
+    },
+    populateReplayInfos: function(authorName, authorAvatarUrl, 
+                                  filename, filesize,
+                                  username, 
+                                  replayLocalPath, replayData){
+        let embed = this.generateGeneric()
+            .setColor(3447003)
+            .setAuthor(authorName, authorAvatarUrl)
+            .setTitle(`${username} uploaded a replay`)
+            .setDescription(`**__File name__** : ${filename}\n**__File size__** : ${Math.round(filesize / 1024)} kb`)
+            .setImage(mapper.mapPathToUrl(replayData.mapPath))
+            .attachFile(replayLocalPath);
+
+        let slot = 1;
+        let observers = [];
+        replayData.players.forEach(player => {
+            if(player.race.length === 0){
+                if(player.name.length > 0) observers.push(player.name);
+            } else {
+                embed.addField(`Player ${slot}`, `**__Name__** : ${player.name}\n**__Race__** : ${mapper.mapRace(player.race)}`);
+            }
+            slot++;
+        });
+        
+        if(observers.length > 0){
+            embed.addField(`Observers`, `${observers.join(', ')}`);
+        }
 
         return embed;
     }

@@ -12,6 +12,9 @@ const usersHelper = require('./business/dal/usersHelper');
 
 const db = require('./business/dal/storage/sqlitestore.js');
 
+const replayParser = require('./business/relicChunky/replayParser.js');
+const files = require('./business/util/filesHelper.js');
+
 /* ----------------------------------------------------------------------------------------------- */
 client.on('ready', async () => {
   console.log(`I am ready! ${client.user.username} `); // ${client.user.avatarURL}
@@ -23,8 +26,12 @@ client.on('ready', async () => {
   //     let channel = guild.channels.find(channel => channel.name === botSettings.defaultChannel);
   //     channel.send({tts:false, embed: embedHelper.populateLoadedNotification()});
   // });
+
+  
   
   db.createDatabase();
+
+  //replayParser.getReplayData();
 
   // inviteLink.generate(client);
 });
@@ -43,140 +50,178 @@ client.on("guildDelete", guild => {
 /* ----------------------------------------------------------------------------------------------- */
 client.on('message', async message => {
   if(message.author.bot) return; // not replying to others bots
-  if(message.channel.type === 'dm' || message.channel.name !== botSettings.defaultChannel) return; // direct messages should be ignored
-  if(!message.content.startsWith(botSettings.prefix)) return; // ignoring messages not starting with command prefix
+  if(message.channel.type === 'dm') return; // direct messages should be ignored
+  
+  if(message.channel.name === botSettings.defaultChannel) {
+  
+    if(!message.content.startsWith(botSettings.prefix)) return; // ignoring messages not starting with command prefix
 
-  let messageChunks = message.content.toLowerCase().slice(botSettings.prefix.length).trim().split(/ +/g);
-  let command = messageChunks[0];
-  let args = messageChunks.slice(1);
+    let messageChunks = message.content.toLowerCase().slice(botSettings.prefix.length).trim().split(/ +/g);
+    let command = messageChunks[0];
+    let args = messageChunks.slice(1);
 
-  /* ------------------------------------------------------------------------------------------- 
-     gaem command | !gaem @user1 10 @user2 5
-     ------------------------------------------------------------------------------------------- */
-  if(command === 'gaem') { 
+    /* ------------------------------------------------------------------------------------------- 
+      gaem command | !gaem @user1 10 @user2 5
+      ------------------------------------------------------------------------------------------- */
+    if(command === 'gaem') { 
 
-    let mentions = message.mentions.users.array();
-    let errors = arguments.CheckGaemArgs(args, mentions.length);
+      let mentions = message.mentions.users.array();
+      let errors = arguments.CheckGaemArgs(args, mentions.length);
 
-    if(errors.length != 0) {
+      if(errors.length != 0) {
+        message.channel.send({
+          embed: embedHelper.populateGaemError(client.user.username, client.user.avatarURL, errors)
+        });
+      } else {
+
+        let user1 = mentions[0];
+        let user2 = mentions[1];
+
+        Promise.all([db.getUser(user1.id), db.getUser(user2.id)]).then(values => {
+          let dbUser1, dbUser2;
+
+          if(!values[0]) {
+            dbUser1 = usersHelper.createUser(user1.id, user1.username, user1.avatarURL);
+          } else {
+            dbUser1 = values[0];
+          }
+          if(!values[1]) {
+            dbUser2 = usersHelper.createUser(user2.id, user2.username, user2.avatarURL);
+          } else {
+            dbUser2 = values[1];
+          }
+
+          let user1Score, user2Score;
+          if(args[0].includes(user1.id)){
+            user1Score = Number.parseInt(args[1]);
+            user2Score = Number.parseInt(args[3]);
+          } else {
+            user1Score = Number.parseInt(args[3]);
+            user2Score = Number.parseInt(args[1]);
+          }
+
+          let scoreResult = scores.resolve(user1.username, user1Score, dbUser1.eloRating, 
+                                            user2.username, user2Score, dbUser2.eloRating);
+          
+          scoreResult.player1.totalWins = dbUser1.wins += scoreResult.player1.score;
+          scoreResult.player1.totalLosses = dbUser1.losses += scoreResult.player2.score;
+
+          scoreResult.player2.totalWins = dbUser2.wins += scoreResult.player2.score
+          scoreResult.player2.totalLosses = dbUser2.losses += scoreResult.player1.score
+
+        //  console.log(scoreResult);
+          
+          db.updateUserStats(dbUser1.userId, dbUser1.wins, dbUser1.losses, scoreResult.player1.eloRating);
+          db.updateUserStats(dbUser2.userId, dbUser2.wins, dbUser2.losses, scoreResult.player2.eloRating);
+
+          message.channel.send({
+            embed: embedHelper.populateReport(message.author.username, message.author.avatarURL, 
+                                              dbUser1.eloRating, dbUser2.eloRating, scoreResult)
+          });
+        });
+      }
+    }
+    /* ------------------------------------------------------------------------------------------- 
+      stat command | !stat @user
+      ------------------------------------------------------------------------------------------- */
+    if(command === 'stat') {
+      let mentions = message.mentions.users.array();
+      let errors = arguments.CheckStatArgs(args, mentions.length);
+
+      if(errors.length != 0) {
+        message.channel.send({
+          embed: embedHelper.populateStatError(client.user.username, client.user.avatarURL, errors)
+        });
+      } else {
+        let user = mentions[0];
+
+        db.getUser(user.id).then(userData => {
+          if(userData){
+            db.getUsersByRatioRank().then(data => {
+              let ratioRank = data.findIndex(i => i.userId === user.id) + 1;
+              let eloRank = data.sort((a, b) => b.eloRating - a.eloRating).findIndex(i => i.userId === user.id)+1;
+
+              message.channel.send({
+                embed: embedHelper.populateUserStat(client.user.username, client.user.avatarURL, userData, eloRank, ratioRank, data.length)
+              });
+            });
+          } else {
+            message.channel.send({
+              embed: embedHelper.populateNoDataForUser(client.user.username, client.user.avatarURL, user.username)
+            });
+          }
+        });
+      }
+    }
+    /* ------------------------------------------------------------------------------------------- 
+      top command | !top <byratio | byelo>
+      ------------------------------------------------------------------------------------------- */
+    if(command === 'top') {
+      let errors = arguments.CheckTopArgs(args);
+      
+      if(errors.length != 0) {
+        message.channel.send({
+          embed: embedHelper.populateTopError(client.user.username, client.user.avatarURL, errors)
+        });
+      } else {
+        db.getUsersByRatioRank().then(data => {
+          let ordered;
+          let by;
+          if(args[0] === 'byratio'){ 
+            ordered = data;
+            by = 'ratio';
+          } else { 
+            ordered = data.sort((a, b) => b.eloRating - a.eloRating);
+            by = 'elo';
+          }
+
+          message.channel.send({
+            embed: embedHelper.populateTop(client.user.username, client.user.avatarURL, ordered.slice(0, 10), data.length, by)
+          });
+        });
+      }
+    }
+    /* ------------------------------------------------------------------------------------------- 
+      help command | !help
+      ------------------------------------------------------------------------------------------- */
+    if(command === 'help') {
       message.channel.send({
-        embed: embedHelper.populateGaemError(client.user.username, client.user.avatarURL, errors)
-      });
-    } else {
-
-      let user1 = mentions[0];
-      let user2 = mentions[1];
-
-      Promise.all([db.getUser(user1.id), db.getUser(user2.id)]).then(values => {
-         let dbUser1, dbUser2;
-
-         if(!values[0]) {
-          dbUser1 = usersHelper.createUser(user1.id, user1.username, user1.avatarURL);
-         } else {
-          dbUser1 = values[0];
-         }
-         if(!values[1]) {
-          dbUser2 = usersHelper.createUser(user2.id, user2.username, user2.avatarURL);
-         } else {
-          dbUser2 = values[1];
-         }
-
-         let user1Score, user2Score;
-         if(args[0].includes(user1.id)){
-          user1Score = Number.parseInt(args[1]);
-          user2Score = Number.parseInt(args[3]);
-         } else {
-          user1Score = Number.parseInt(args[3]);
-          user2Score = Number.parseInt(args[1]);
-         }
-
-         let scoreResult = scores.resolve(user1.username, user1Score, dbUser1.eloRating, 
-                                          user2.username, user2Score, dbUser2.eloRating);
-         
-         scoreResult.player1.totalWins = dbUser1.wins += scoreResult.player1.score;
-         scoreResult.player1.totalLosses = dbUser1.losses += scoreResult.player2.score;
-
-         scoreResult.player2.totalWins = dbUser2.wins += scoreResult.player2.score
-         scoreResult.player2.totalLosses = dbUser2.losses += scoreResult.player1.score
-
-       //  console.log(scoreResult);
-         
-         db.updateUserStats(dbUser1.userId, dbUser1.wins, dbUser1.losses, scoreResult.player1.eloRating);
-         db.updateUserStats(dbUser2.userId, dbUser2.wins, dbUser2.losses, scoreResult.player2.eloRating);
-
-         message.channel.send({
-           embed: embedHelper.populateReport(message.author.username, message.author.avatarURL, 
-                                             dbUser1.eloRating, dbUser2.eloRating, scoreResult)
-         });
+        embed: embedHelper.populateHelp()
       });
     }
-  }
-  /* ------------------------------------------------------------------------------------------- 
-     stat command | !stat @user
-     ------------------------------------------------------------------------------------------- */
-  if(command === 'stat') {
-    let mentions = message.mentions.users.array();
-    let errors = arguments.CheckStatArgs(args, mentions.length);
+  } else if(message.channel.name === botSettings.replaysChannel) {
+    
+    // for tests
+    //if(message.guild.name === 'dowpro (mod for Dawn of War)') return;
 
-    if(errors.length != 0) {
-      message.channel.send({
-        embed: embedHelper.populateStatError(client.user.username, client.user.avatarURL, errors)
-      });
-    } else {
-      let user = mentions[0];
+    if(message.attachments.length === 0) return;
 
-      db.getUser(user.id).then(userData => {
-        if(userData){
-          db.getUsersByRatioRank().then(data => {
-            let ratioRank = data.findIndex(i => i.userId === user.id) + 1;
-            let eloRank = data.sort((a, b) => b.eloRating - a.eloRating).findIndex(i => i.userId === user.id)+1;
+    message.attachments.forEach(attachment => {
 
-            message.channel.send({
-              embed: embedHelper.populateUserStat(client.user.username, client.user.avatarURL, userData, eloRank, ratioRank, data.length)
+      if(attachment.filename.substr(attachment.filename.lastIndexOf('.') + 1) === 'rec') {
+        var path = './' + botSettings.downloadsFolder + '/'+attachment.filename;
+        files.saveFromUrlUsingHttps(attachment.url, path, function(err){
+          if(err) { 
+            console.log(err);
+            return;
+          }
+
+          replayParser.getReplayData(path, function(replayData) {
+
+            attachment.message.delete().then(msg =>
+            {
+              msg.channel.send({
+                embed: embedHelper.populateReplayInfos(client.user.username, client.user.avatarURL, 
+                                                       attachment.filename, attachment.filesize,
+                                                       msg.author.username, 
+                                                       path, replayData)
+              }).then(sentMsg => {
+                files.delete(path);
+              });
             });
           });
-        } else {
-          message.channel.send({
-            embed: embedHelper.populateNoDataForUser(client.user.username, client.user.avatarURL, user.username)
-          });
-        }
-      });
-    }
-  }
-  /* ------------------------------------------------------------------------------------------- 
-     top command | !top <byratio | byelo>
-     ------------------------------------------------------------------------------------------- */
-  if(command === 'top') {
-    let errors = arguments.CheckTopArgs(args);
-    
-    if(errors.length != 0) {
-      message.channel.send({
-        embed: embedHelper.populateTopError(client.user.username, client.user.avatarURL, errors)
-      });
-    } else {
-      db.getUsersByRatioRank().then(data => {
-        let ordered;
-        let by;
-        if(args[0] === 'byratio'){ 
-          ordered = data;
-          by = 'ratio';
-        } else { 
-          ordered = data.sort((a, b) => b.eloRating - a.eloRating);
-          by = 'elo';
-        }
-
-        message.channel.send({
-          embed: embedHelper.populateTop(client.user.username, client.user.avatarURL, ordered.slice(0, 10), data.length, by)
         });
-      });
-    }
-  }
-  /* ------------------------------------------------------------------------------------------- 
-     help command | !help
-     ------------------------------------------------------------------------------------------- */
-  if(command === 'help') {
-    message.channel.send({
-      embed: embedHelper.populateHelp()
+      }
     });
   }
 });

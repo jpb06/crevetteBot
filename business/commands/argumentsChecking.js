@@ -32,7 +32,7 @@ module.exports = {
       if(args.length != 1)
         errors = 'Expecting 1 argument';
       if(args[0] !== 'byratio' && args[0] !== 'byelo')
-        errors += 'argument should be either byratio or byelo';
+        errors += '\nargument should be either byratio or byelo';
 
       return errors;
     }
