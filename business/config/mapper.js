@@ -1,7 +1,9 @@
 module.exports = {
     "mapPathToUrl": function(mapPath) {
-        let fileName = mapPath.substr(mapPath.lastIndexOf('\\') + 1);
+        let fileName = mapPath.substr(mapPath.lastIndexOf('\\') + 1).toLowerCase();
         
+        console.log(fileName);
+
         switch(fileName) {
             case '2p_abandon_all_hope': return 'http://i.imgur.com/Q54Oi9L.jpg';
             case '2p_absolute_zero': return 'http://i.imgur.com/b7yNS4t.jpg';
@@ -85,13 +87,20 @@ module.exports = {
             case '8p_penal_colony': return 'http://i.imgur.com/O5etsV7.jpg';
             case '8p_rhean_jungle': return 'http://i.imgur.com/wxg5bwe.jpg';
             case '8p_thurabis_plateau': return 'http://i.imgur.com/vtw5L6R.jpg';
-            case 'Antiga Bay (2) v10': return 'http://i.imgur.com/KSKD9HH.jpg';
+            case 'antiga bay (2) v10': return 'http://i.imgur.com/KSKD9HH.jpg';
             case 'diceyambush': return 'http://i.imgur.com/I9y3JcM.jpg';
-            case 'Galenas Crusade (2) v10': return 'http://i.imgur.com/EFLScl4.jpg';
-            case 'Jungle Morning(2)v2-6': return 'http://i.imgur.com/fau9fkK.jpg';
-            case 'Pro_2p_quests_triumph': return 'http://i.imgur.com/KaLHsN1.jpg';
-            case 'Sands of Time (2) v10': return 'http://i.imgur.com/oPrnD2c.jpg';
-            case 'Short Below Zero (2) v14': return 'http://i.imgur.com/IeOZHWW.jpg';
+            case 'galenas crusade (2) v10': return 'http://i.imgur.com/EFLScl4.jpg';
+            case 'jungle morning(2)v2-6': return 'http://i.imgur.com/fau9fkK.jpg';
+            case 'pro_2p_quests_triumph': return 'http://i.imgur.com/KaLHsN1.jpg';
+            case 'sands of time (2) v10': return 'http://i.imgur.com/oPrnD2c.jpg';
+            case 'Short below zero (2) v14': return 'http://i.imgur.com/IeOZHWW.jpg';
+            case '2p_belltower': return 'http://i.imgur.com/98jT54t.jpg';
+            case '2p_blood_river_remix': return 'http://i.imgur.com/1X4EQpL.jpg';
+            case '2p_light_brigade': return 'http://i.imgur.com/yBEvs7R.jpg';
+            case '2p_fraziersdemise': return 'http://i.imgur.com/BhgChRF.jpg';
+            case '2p_meeting_of_minds_pro_lis_v1': return 'http://i.imgur.com/HKUE0ao.jpg';
+            case '2p_outer_reaches_remix': return 'http://i.imgur.com/TLLlV7l.jpg';
+            case '2p_refinery': return 'http://i.imgur.com/sFlILVy.jpg';
             default: return 'http://i.imgur.com/oBBZtML.png';
         }
     },

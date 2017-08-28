@@ -11,7 +11,7 @@ module.exports = {
 
             pos += conversionHelper.byteArrayToLong(data.slice(pos, pos+4))+4;
             let length = conversionHelper.byteArrayToLong(data.slice(pos, pos+4)); // length map name
-            // conversionHelper.readUTF16String(data.slice(pos+4, pos+4+length*2), true);
+            let mapName = conversionHelper.readUTF16String(data.slice(pos+4, pos+4+length*2), true);
             pos += length*2+4; 
             
             length = conversionHelper.byteArrayToLong(data.slice(pos, pos+4)); // map path length
@@ -37,6 +37,7 @@ module.exports = {
             pos += length+4;
 
             let mapData = {
+                "mapName": mapName,
                 "mapPath": mapPath,
                 "players": []
             };
