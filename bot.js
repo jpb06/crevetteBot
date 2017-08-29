@@ -3,17 +3,17 @@ const client = new Discord.Client({
   disableEveryone:true
 });
 
-const botSettings = require('./botsettings.json');
-const argumentsValidation = require('./business/commands/argumentsValidation.js');
-const scores = require('./business/ranking/scoresManager.js');
-const inviteLink = require('./business/util/inviteLink.js');
-const embedHelper = require('./business/util/embedHelper.js');
-const usersHelper = require('./business/dal/usersHelper');
-
 const db = require('./business/dal/storage/sqlitestore.js');
+const embedHelper = require('./business/util/embedHelper.js');
 
-const replayParser = require('./business/relicChunky/replayParser.js');
-const files = require('./business/util/filesHelper.js');
+const botSettings = require('./botsettings.json');
+const gaemCommand = require('./business/commands/gaemCommand.js');
+const statCommand = require('./business/commands/statCommand.js');
+const topCommand = require('./business/commands/topCommand.js');
+const helpCommand = require('./business/commands/helpCommand.js');
+const replays = require('./business/replaysParsing/replays.js');
+
+const inviteLink = require('./business/util/inviteLink.js');
 
 /* ----------------------------------------------------------------------------------------------- */
 client.on('ready', async () => {
@@ -27,8 +27,6 @@ client.on('ready', async () => {
   //     channel.send({tts:false, embed: embedHelper.populateLoadedNotification()});
   // });
 
-  
-  
   db.createDatabase();
 
   //replayParser.getReplayData();
@@ -64,130 +62,25 @@ client.on('message', async message => {
       gaem command | !gaem @user1 10 @user2 5
       ------------------------------------------------------------------------------------------- */
     if(command === 'gaem') { 
-
-      let mentions = message.mentions.users.array();
-      let errors = argumentsValidation.CheckGaemArgs(args, mentions.length);
-
-      if(errors.length != 0) {
-        message.channel.send({
-          embed: embedHelper.populateGaemError(client.user.username, client.user.avatarURL, errors)
-        });
-      } else {
-
-        let user1 = mentions[0];
-        let user2 = mentions[1];
-
-        Promise.all([db.getUser(user1.id), db.getUser(user2.id)]).then(values => {
-          let dbUser1, dbUser2;
-
-          if(!values[0]) {
-            dbUser1 = usersHelper.createUser(user1.id, user1.username, user1.avatarURL);
-          } else {
-            dbUser1 = values[0];
-          }
-          if(!values[1]) {
-            dbUser2 = usersHelper.createUser(user2.id, user2.username, user2.avatarURL);
-          } else {
-            dbUser2 = values[1];
-          }
-
-          let user1Score, user2Score;
-          if(args[0].includes(user1.id)){
-            user1Score = Number.parseInt(args[1]);
-            user2Score = Number.parseInt(args[3]);
-          } else {
-            user1Score = Number.parseInt(args[3]);
-            user2Score = Number.parseInt(args[1]);
-          }
-
-          let scoreResult = scores.resolve(user1.username, user1Score, dbUser1.eloRating, 
-                                            user2.username, user2Score, dbUser2.eloRating);
-          
-          scoreResult.player1.totalWins = dbUser1.wins += scoreResult.player1.score;
-          scoreResult.player1.totalLosses = dbUser1.losses += scoreResult.player2.score;
-
-          scoreResult.player2.totalWins = dbUser2.wins += scoreResult.player2.score
-          scoreResult.player2.totalLosses = dbUser2.losses += scoreResult.player1.score
-
-        //  console.log(scoreResult);
-          
-          db.updateUserStats(dbUser1.userId, dbUser1.wins, dbUser1.losses, scoreResult.player1.eloRating);
-          db.updateUserStats(dbUser2.userId, dbUser2.wins, dbUser2.losses, scoreResult.player2.eloRating);
-
-          message.channel.send({
-            embed: embedHelper.populateReport(message.author.username, message.author.avatarURL, 
-                                              dbUser1.eloRating, dbUser2.eloRating, scoreResult)
-          });
-        });
-      }
+      gaemCommand.process(args, message.mentions.users.array(), message, client);
     }
     /* ------------------------------------------------------------------------------------------- 
       stat command | !stat @user
       ------------------------------------------------------------------------------------------- */
     if(command === 'stat') {
-      let mentions = message.mentions.users.array();
-      let errors = argumentsValidation.CheckStatArgs(args, mentions.length);
-
-      if(errors.length != 0) {
-        message.channel.send({
-          embed: embedHelper.populateStatError(client.user.username, client.user.avatarURL, errors)
-        });
-      } else {
-        let user = mentions[0];
-
-        db.getUser(user.id).then(userData => {
-          if(userData){
-            db.getUsersByRatioRank().then(data => {
-              let ratioRank = data.findIndex(i => i.userId === user.id) + 1;
-              let eloRank = data.sort((a, b) => b.eloRating - a.eloRating).findIndex(i => i.userId === user.id)+1;
-
-              message.channel.send({
-                embed: embedHelper.populateUserStat(client.user.username, client.user.avatarURL, userData, eloRank, ratioRank, data.length)
-              });
-            });
-          } else {
-            message.channel.send({
-              embed: embedHelper.populateNoDataForUser(client.user.username, client.user.avatarURL, user.username)
-            });
-          }
-        });
-      }
+      statCommand.process(args, message.mentions.users.array(), message, client);
     }
     /* ------------------------------------------------------------------------------------------- 
       top command | !top <byratio | byelo>
       ------------------------------------------------------------------------------------------- */
     if(command === 'top') {
-      let errors = argumentsValidation.CheckTopArgs(args);
-      
-      if(errors.length != 0) {
-        message.channel.send({
-          embed: embedHelper.populateTopError(client.user.username, client.user.avatarURL, errors)
-        });
-      } else {
-        db.getUsersByRatioRank().then(data => {
-          let ordered;
-          let by;
-          if(args[0] === 'byratio'){ 
-            ordered = data;
-            by = 'ratio';
-          } else { 
-            ordered = data.sort((a, b) => b.eloRating - a.eloRating);
-            by = 'elo';
-          }
-
-          message.channel.send({
-            embed: embedHelper.populateTop(client.user.username, client.user.avatarURL, ordered.slice(0, 10), data.length, by)
-          });
-        });
-      }
+      topCommand.process(args, message, client);
     }
     /* ------------------------------------------------------------------------------------------- 
       help command | !help
       ------------------------------------------------------------------------------------------- */
     if(command === 'help') {
-      message.channel.send({
-        embed: embedHelper.populateHelp()
-      });
+      helpCommand.process(message);
     }
   } else if(message.channel.name === botSettings.replaysChannel) {
     
@@ -205,31 +98,7 @@ client.on('message', async message => {
     if(message.attachments.length === 0) return;
 
     message.attachments.forEach(attachment => {
-
-      if(attachment.filename.substr(attachment.filename.lastIndexOf('.') + 1) === 'rec') {
-        var path = './' + botSettings.downloadsFolder + '/'+attachment.filename;
-        files.saveFromUrlUsingHttps(attachment.url, path, function(err){
-          if(err) { 
-            console.log(err);
-            return;
-          }
-
-          replayParser.getReplayData(path, function(replayData) {
-
-            attachment.message.delete().then(msg =>
-            {
-              msg.channel.send({
-                embed: embedHelper.populateReplayInfos(client.user.username, client.user.avatarURL, 
-                                                      attachment.filesize,
-                                                       msg.author.username, 
-                                                       path, replayData)
-              }).then(sentMsg => {
-                files.delete(path);
-              });
-            });
-          });
-        });
-      }
+      replays.describe(attachment, botSettings.downloadsFolder, client);
     });
   }
 });

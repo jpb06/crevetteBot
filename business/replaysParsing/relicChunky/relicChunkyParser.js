@@ -1,6 +1,6 @@
 const fs = require ('fs');
 
-const conversionHelper = require ('./conversionHelper.js')
+const conversionHelper = require ('./../../util/conversionHelper.js')
 
 module.exports = {
     "getReplayData": function(path, cb) {

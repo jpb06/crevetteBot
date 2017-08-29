@@ -1,6 +1,6 @@
 const Discord = require('discord.js');
 const scoresManager = require('./../ranking/scoresManager.js');
-const commandsDescriptions = require('./../commands/commandsDescriptions.js');
+const commandsDescriptions = require('./../commands/shared/commandsDescriptions.js');
 const mapper = require('./../config/mapper.js');
 
 module.exports = {
