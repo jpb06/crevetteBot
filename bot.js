@@ -212,7 +212,7 @@ client.on('message', async message => {
             {
               msg.channel.send({
                 embed: embedHelper.populateReplayInfos(client.user.username, client.user.avatarURL, 
-                                                       attachment.filename, attachment.filesize,
+                                                      attachment.filesize,
                                                        msg.author.username, 
                                                        path, replayData)
               }).then(sentMsg => {

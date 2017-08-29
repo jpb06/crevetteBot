@@ -129,20 +129,21 @@ module.exports = {
         return embed;
     },
     populateReplayInfos: function(authorName, authorAvatarUrl, 
-                                  filename, filesize,
+                                  filesize,
                                   username, 
                                   replayLocalPath, replayData){
 
-        // for some reason, blood river map has $100012 as map name
-        var mapName = replayData.mapName === '$100012'? 'Blood river' : replayData.mapName;
+        let translatedMapData = mapper.translateMapData(replayData.mapPath);
 
         let embed = this.generateGeneric()
             .setColor(3447003)
             .setAuthor(authorName, authorAvatarUrl)
             .setTitle(`${username} uploaded a replay`)
-            .setDescription(`**__File name__** : ${filename}\n**__File size__** : ${Math.round(filesize / 1024)} kb\n**__Map__** : ${mapName}`)
-            .setImage(mapper.mapPathToUrl(replayData.mapPath))
+            .setDescription(`**__File size__** : ${Math.round(filesize / 1024)} kb\n**__Map__** : ${translatedMapData.name ? translatedMapData.name : 'Unregistered map'}`)
             .attachFile(replayLocalPath);
+
+        if(translatedMapData.name)
+            embed.setThumbnail(translatedMapData.url);
 
         let slot = 1;
         let observers = [];
