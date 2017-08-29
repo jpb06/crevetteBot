@@ -4,7 +4,7 @@ const client = new Discord.Client({
 });
 
 const botSettings = require('./botsettings.json');
-const arguments = require('./business/commands/argumentsChecking.js');
+const argumentsValidation = require('./business/commands/argumentsValidation.js');
 const scores = require('./business/ranking/scoresManager.js');
 const inviteLink = require('./business/util/inviteLink.js');
 const embedHelper = require('./business/util/embedHelper.js');
@@ -66,7 +66,7 @@ client.on('message', async message => {
     if(command === 'gaem') { 
 
       let mentions = message.mentions.users.array();
-      let errors = arguments.CheckGaemArgs(args, mentions.length);
+      let errors = argumentsValidation.CheckGaemArgs(args, mentions.length);
 
       if(errors.length != 0) {
         message.channel.send({
@@ -126,7 +126,7 @@ client.on('message', async message => {
       ------------------------------------------------------------------------------------------- */
     if(command === 'stat') {
       let mentions = message.mentions.users.array();
-      let errors = arguments.CheckStatArgs(args, mentions.length);
+      let errors = argumentsValidation.CheckStatArgs(args, mentions.length);
 
       if(errors.length != 0) {
         message.channel.send({
@@ -157,7 +157,7 @@ client.on('message', async message => {
       top command | !top <byratio | byelo>
       ------------------------------------------------------------------------------------------- */
     if(command === 'top') {
-      let errors = arguments.CheckTopArgs(args);
+      let errors = argumentsValidation.CheckTopArgs(args);
       
       if(errors.length != 0) {
         message.channel.send({
