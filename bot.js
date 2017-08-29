@@ -194,6 +194,14 @@ client.on('message', async message => {
     // for tests
     //if(message.guild.name === 'dowpro (mod for Dawn of War)') return;
 
+    // message.channel.fetchMessages({ limit: 3 }).then(messages => {
+    //   console.log(messages);
+    //   messages.forEach(el => {
+    //     el.attachments.first().
+    //   });
+    // });
+
+
     if(message.attachments.length === 0) return;
 
     message.attachments.forEach(attachment => {

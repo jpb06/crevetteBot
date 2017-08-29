@@ -135,11 +135,14 @@ module.exports = {
 
         let translatedMapData = mapper.translateMapData(replayData.mapPath);
 
+        var date = new Date(null);
+        date.setSeconds(replayData.duration); 
+        var time = date.toISOString().substr(11, 8);
+
         let embed = this.generateGeneric()
             .setColor(3447003)
-            .setAuthor(authorName, authorAvatarUrl)
-            .setTitle(`${username} uploaded a replay`)
-            .setDescription(`**__File size__** : ${Math.round(filesize / 1024)} kb\n**__Map__** : ${translatedMapData.name ? translatedMapData.name : 'Unregistered map'}`)
+            .setAuthor(`${username} uploaded a replay`, authorAvatarUrl)
+            .setDescription(`**__Map__** : ${translatedMapData.name ? translatedMapData.name : 'Unregistered map'}\n**__Game duration__** : ${time}`)
             .attachFile(replayLocalPath);
 
         if(translatedMapData.name)
@@ -151,7 +154,7 @@ module.exports = {
             if(player.race.length === 0){
                 if(player.name.length > 0) observers.push(player.name);
             } else {
-                embed.addField(`Player ${slot}`, `**__Name__** : ${player.name}\n**__Race__** : ${mapper.mapRace(player.race)}`);
+                embed.addField(`Player ${slot}`, `${player.name} : ${mapper.mapRace(player.race)}`);
             }
             slot++;
         });

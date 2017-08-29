@@ -39,7 +39,8 @@ module.exports = {
             let mapData = {
                 "mapName": mapName,
                 "mapPath": mapPath,
-                "players": []
+                "players": [],
+                "duration": 0
             };
             let players = [];
             for(let i = 0; i < 8; i++) {
@@ -52,7 +53,23 @@ module.exports = {
                 pos = playerChunkData.nextPlayerChunkPos;
             }
 
+            let lastTimeStamp = 0;
+            while(pos < data.length) {
+                let type = conversionHelper.byteArrayToLong(data.slice(pos, pos+4));
+                pos += 4;
+                if(type === 0) {
+                    let actionData = self.readActionChunk(data, pos);
+                    lastTimeStamp = actionData[0];
+                    pos = actionData[1];
+                } else if(type === 1) {
+                    pos = self.readChatChunk(data, pos);
+                }
+            }
+
+            //console.log('pos : '+pos);
+
             mapData.players = players;
+            mapData.duration = lastTimeStamp / 8;
 
             cb(mapData);
        });
@@ -112,6 +129,57 @@ module.exports = {
                 race: playerRace
             } 
         };
+    },
+    "readActionChunk": function(data, pos) {
+        //let type = conversionHelper.byteArrayToLong(data.slice(pos, pos+4));
+       // pos += 4;
+        let chunkLength = conversionHelper.byteArrayToLong(data.slice(pos, pos+4));
+        pos += 4;
+        let p = data[pos]; // should be 50 hex / 80 decimal
+        if(p !== 80) console.log('error at : '+pos);
+        pos++;
+        let timestamp = conversionHelper.byteArrayToLong(data.slice(pos, pos+4));
+
+        // if(chunkLength > 17) {
+
+        // } else {
+           
+        // }
+
+        pos += chunkLength - 1;
+
+        return [timestamp, pos];
+    },
+    "readChatChunk": function(data, pos) {
+        //let type = conversionHelper.byteArrayToLong(data.slice(pos, pos+4));
+       // pos += 4;
+        let chunkLength = conversionHelper.byteArrayToLong(data.slice(pos, pos+4));
+        pos += 4;
+        pos += 4; // always 1
+        pos += 5;
+
+        let nameLength = conversionHelper.byteArrayToLong(data.slice(pos, pos+4));
+        pos += 4;
+
+        //let playerName = '';
+        //if(nameLength > 0)  
+        //    playerName = conversionHelper.readUTF16String(data.slice(pos, pos+nameLength*2), true);
+
+        pos += nameLength * 2;
+
+        //let playerType = conversionHelper.byteArrayToLong(data.slice(pos, pos+4)); // 0 = obs, 1 = player
+        pos += 4;
+        pos += 4;
+
+        //let msgDest = conversionHelper.byteArrayToLong(data.slice(pos, pos+4)); // 0 = all, 1 = team
+        pos += 4;
+
+        let msgLength = conversionHelper.byteArrayToLong(data.slice(pos, pos+4));
+        pos += 4;
+        //let msg = conversionHelper.readUTF16String(data.slice(pos, pos+msgLength*2), true);
+        pos += msgLength * 2;
+
+        return pos;
     }
 }
 
@@ -156,3 +224,24 @@ module.exports = {
 // length bytes = player name
 // 61 bytes = ???
 // FOLDTCUC
+// ...
+// --------------------------------------------------------- action chunk
+// 4 bytes = always 0; probably means action chunk
+// 4 bytes = chunk length
+// 1 byte = 50 in hex = 80 decimal = P
+// 4 bytes = timestamp (timestamp / 8 = seconds)
+// remaining bytes until length = ???
+// if 4 next bytes = 1 then chat chunk, else next action chunk starts
+// --------------------------------------------------------- chat chunk
+// 4 bytes = 1 (means chat chunk)
+// 4 bytes = chat chunk length
+// 4 bytes = always 1
+// 4 bytes = ???
+// 1 byte = ???
+// 4 bytes = name length
+// length bytes * 2 = name
+// 4 bytes = 0 is obs, else player
+// 4 bytes = player info???
+// 4 bytes = 1 to team, 0 to all
+// 4 bytes = msg length
+// length bytes * 2 = message
