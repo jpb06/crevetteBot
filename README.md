@@ -22,7 +22,7 @@ Registers game results between two players.
 Displays the statistics of a player.
 
 ![!stat errors](http://i.imgur.com/OmbTXTm.jpg "!stat errors")
-![!stat result](http://i.imgur.com/H4MtO9k.jpg "!stat command result")
+![!stat result](http://i.imgur.com/MQhImqs.jpg "!stat command result")
 
 #### !top
 
