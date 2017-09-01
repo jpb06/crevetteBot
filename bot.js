@@ -82,18 +82,10 @@ client.on('message', async message => {
     if(command === 'help') {
       helpCommand.process(message);
     }
-  } else if(message.channel.name === botSettings.replaysChannel) {
+  } else if(botSettings.replaysChannels.includes(message.channel.name)) {
     
     // for tests
     //if(message.guild.name === 'dowpro (mod for Dawn of War)') return;
-
-    // message.channel.fetchMessages({ limit: 3 }).then(messages => {
-    //   console.log(messages);
-    //   messages.forEach(el => {
-    //     el.attachments.first().
-    //   });
-    // });
-
 
     if(message.attachments.length === 0) return;
 
