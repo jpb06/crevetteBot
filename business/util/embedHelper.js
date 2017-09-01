@@ -73,6 +73,16 @@ module.exports = {
 
         return embed;
     },
+    populateAdminError: function(authorName, authorAvatarUrl, errors){
+        let embed = this.generateGeneric()
+        .setColor(10684167)
+        .setAuthor(authorName, authorAvatarUrl)
+        .setTitle('Invalid request')
+        .setDescription(commandsDescriptions.adminUsage())
+        .addField('Errors', errors);
+
+        return embed;
+    },
     populateNoDataForUser: function(authorName, authorAvatarUrl, user) {
         let embed = this.generateGeneric()
             .setColor(10684167)
@@ -162,6 +172,15 @@ module.exports = {
         if(observers.length > 0){
             embed.addField(`Observers`, `${observers.join(', ')}`);
         }
+
+        return embed;
+    },
+    populateUserStatsUpdated(authorName, authorAvatarUrl, user) {
+        let embed = this.generateGeneric()
+            .setColor(3447003)
+            .setAuthor(authorName, authorAvatarUrl)
+            .setTitle(`${user.name} stats updated.`)
+            .setDescription(`**__Wins__** : ${user.wins}\n**__Losses__** : ${user.losses}\n**__Elo rating__** : ${user.eloRating}`);
 
         return embed;
     }

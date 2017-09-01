@@ -24,5 +24,19 @@ module.exports = {
     helpUsage: function() {
         return 'Command usage :\n'+
                '```!help```\n';
+    },
+    adminUsage: function() {
+        return 'Command usage :\n'+
+               '```!admin setwins @mention integer\n!admin setlosses @mention integer\n!admin setelo @mention integer```\n'+
+               'Where :\n'+
+               '\t**__@mention__** is the discord identifier of the player to update.\n'+
+               '\t**__integer__** is either the player wins, losses or elo rating, depending on the command first argument (setwins / setlosses / setelo).\n\n'+
+               '```!admin @mention integer1 integer2 integer3```\n'+
+               'Where :\n'+
+               '\t**__@mention__** is the discord identifier of the player to update.\n'+
+               '\t**__integer1__** is the player wins.\n'+
+               '\t**__integer2__** is the player losses.\n'+
+               '\t**__integer3__** is the player elo rating.\n\n'+
+               'Example :\n```!admin setwins @crab 5\n!admin @crab 5 2 1020```\n';
     }
 }
