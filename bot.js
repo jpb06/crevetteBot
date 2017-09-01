@@ -12,12 +12,13 @@ const statCommand = require('./business/commands/statCommand.js');
 const topCommand = require('./business/commands/topCommand.js');
 const helpCommand = require('./business/commands/helpCommand.js');
 const replays = require('./business/replaysParsing/replays.js');
+const adminCommand = require('./business/commands/adminCommand.js');
 
 const inviteLink = require('./business/util/inviteLink.js');
 
 /* ----------------------------------------------------------------------------------------------- */
 client.on('ready', async () => {
-  console.log(`I am ready! ${client.user.username} `); // ${client.user.avatarURL}
+  console.log(`I am ready! ${client.user.username} `);
   embedHelper.botAvatarUrl = client.user.avatarURL;
 
   await client.user.setGame(`on ${client.guilds.size} servers`);
@@ -28,8 +29,6 @@ client.on('ready', async () => {
   // });
 
   db.createDatabase();
-
-  //replayParser.getReplayData();
 
   // inviteLink.generate(client);
 });
@@ -49,38 +48,53 @@ client.on("guildDelete", guild => {
 client.on('message', async message => {
   if(message.author.bot) return; // not replying to others bots
   if(message.channel.type === 'dm') return; // direct messages should be ignored
-  
-  if(message.channel.name === botSettings.defaultChannel) {
-  
-    if(!message.content.startsWith(botSettings.prefix)) return; // ignoring messages not starting with command prefix
 
+  if(message.channel.name === botSettings.defaultChannel || 
+     message.channel.name === botSettings.adminChannel) {
+
+    if(!message.content.startsWith(botSettings.prefix)) return; // ignoring messages not starting with command prefix  
+  
     let messageChunks = message.content.toLowerCase().slice(botSettings.prefix.length).trim().split(/ +/g);
     let command = messageChunks[0];
     let args = messageChunks.slice(1);
 
-    /* ------------------------------------------------------------------------------------------- 
-      gaem command | !gaem @user1 10 @user2 5
-      ------------------------------------------------------------------------------------------- */
-    if(command === 'gaem') { 
-      gaemCommand.process(args, message.mentions.users.array(), message, client);
-    }
-    /* ------------------------------------------------------------------------------------------- 
-      stat command | !stat @user
-      ------------------------------------------------------------------------------------------- */
-    if(command === 'stat') {
-      statCommand.process(args, message.mentions.users.array(), message, client);
-    }
-    /* ------------------------------------------------------------------------------------------- 
-      top command | !top <byratio | byelo>
-      ------------------------------------------------------------------------------------------- */
-    if(command === 'top') {
-      topCommand.process(args, message, client);
-    }
-    /* ------------------------------------------------------------------------------------------- 
-      help command | !help
-      ------------------------------------------------------------------------------------------- */
-    if(command === 'help') {
-      helpCommand.process(message);
+    if(message.channel.name === botSettings.defaultChannel || message.channel.name === botSettings.adminChannel) {
+      /* ------------------------------------------------------------------------------------------- 
+        gaem command | !gaem @user1 10 @user2 5
+        ------------------------------------------------------------------------------------------- */
+      if(command === 'gaem') { 
+        gaemCommand.process(args, message.mentions.users.array(), message, client);
+      }
+      /* ------------------------------------------------------------------------------------------- 
+        stat command | !stat @user
+        ------------------------------------------------------------------------------------------- */
+      if(command === 'stat') {
+        statCommand.process(args, message.mentions.users.array(), message, client);
+      }
+      /* ------------------------------------------------------------------------------------------- 
+        top command | !top <byratio | byelo>
+        ------------------------------------------------------------------------------------------- */
+      if(command === 'top') {
+        topCommand.process(args, message, client);
+      }
+      /* ------------------------------------------------------------------------------------------- 
+        help command | !help
+        ------------------------------------------------------------------------------------------- */
+      if(command === 'help') {
+        helpCommand.process(message);
+      }
+    } 
+    
+    if(message.channel.name === botSettings.adminChannel) {
+      /* ------------------------------------------------------------------------------------------- 
+        admin command | !admin setwins @user 5
+                        !admin setlosses @user 3
+                        !admin setelo @user 800   
+                        !admin @user <elo> <wins> <losses>
+        ------------------------------------------------------------------------------------------- */
+      if(command === 'admin') {
+        adminCommand.process(args, message.mentions.users.array(), message, client);
+      }
     }
   } else if(botSettings.replaysChannels.includes(message.channel.name)) {
     
