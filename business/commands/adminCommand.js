@@ -16,21 +16,21 @@ module.exports = {
 
                 if(args.length === 3) {
 
-                        let value = Number.parseInt(args[2]);
+                    let value = Number.parseInt(args[2]);
 
-                        if(args[0] === 'setwins') {
-                            userData.wins = value;
-                        } else if(args[0] === 'setlosses') {
-                            userData.losses = value;
-                        } else if(args[0] === 'setelo') {
-                            userData.eloRating = value;
-                        }
+                    if(args[0] === 'setwins') {
+                        userData.wins = value;
+                    } else if(args[0] === 'setlosses') {
+                        userData.losses = value;
+                    } else if(args[0] === 'setelo') {
+                        userData.eloRating = value;
+                    }
 
-                        db.updateUserStats(userData.userId, userData.wins, userData.losses, userData.eloRating).then(() => {
-                            message.channel.send({
-                                embed: embedHelper.populateUserStatsUpdated(client.user.username, client.user.avatarURL, userData)
-                            });
+                    db.updateUserStats(userData.userId, userData.wins, userData.losses, userData.eloRating).then(() => {
+                        message.channel.send({
+                            embed: embedHelper.populateUserStatsUpdated(client.user.username, client.user.avatarURL, userData)
                         });
+                    });
                     
                 } else if(args.length === 4) {
 
