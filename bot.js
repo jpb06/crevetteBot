@@ -3,7 +3,7 @@ const client = new Discord.Client({
   disableEveryone:true
 });
 
-let apiKey = {};
+let apiKey = '';
 
 try {
   // case dev local
