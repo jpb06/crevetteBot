@@ -23,10 +23,10 @@ client.on('ready', async () => {
 
   await client.user.setGame(`on ${client.guilds.size} servers`);
   
-  // client.guilds.forEach(guild => {
-  //     let channel = guild.channels.find(channel => channel.name === botSettings.defaultChannel);
-  //     channel.send({tts:false, embed: embedHelper.populateLoadedNotification()});
-  // });
+  client.guilds.forEach(guild => {
+    let channel = guild.channels.find(channel => channel.name === botSettings.defaultChannel);
+    channel.send({tts:false, embed: embedHelper.populateLoadedNotification()});
+  });
 
   db.createDatabase();
 
@@ -109,4 +109,4 @@ client.on('message', async message => {
   }
 });
 /* ----------------------------------------------------------------------------------------------- */
-client.login(botSettings.token);
+client.login(process.env.apiKey);
