@@ -3,6 +3,16 @@ const client = new Discord.Client({
   disableEveryone:true
 });
 
+let apiKey = {};
+
+try {
+  // case dev local
+  apiKey = require('./private.local.js').env.apiKey;
+} catch (ex) {
+  // case deploy
+  apiKey = process.env.apiKey;
+}
+
 const db = require('./business/dal/storage/sqliteStore.js');
 const embedHelper = require('./business/util/embedHelper.js');
 
@@ -109,4 +119,4 @@ client.on('message', async message => {
   }
 });
 /* ----------------------------------------------------------------------------------------------- */
-client.login(process.env.apiKey);
+client.login(apiKey);
