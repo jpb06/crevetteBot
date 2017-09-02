@@ -1,4 +1,4 @@
-const db = require('./storage/sqlitestore.js');
+const db = require('./storage/sqliteStore.js');
 
 module.exports = {
     createUser(id, name, avatar){

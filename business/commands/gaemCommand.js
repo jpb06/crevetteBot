@@ -1,4 +1,4 @@
-const db = require('./../dal/storage/sqlitestore.js');
+const db = require('./../dal/storage/sqliteStore.js');
 const usersHelper = require('./../dal/usersHelper.js');
 
 const argumentsValidation = require('./shared/argumentsValidation.js');

@@ -3,7 +3,7 @@ const client = new Discord.Client({
   disableEveryone:true
 });
 
-const db = require('./business/dal/storage/sqlitestore.js');
+const db = require('./business/dal/storage/sqliteStore.js');
 const embedHelper = require('./business/util/embedHelper.js');
 
 const botSettings = require('./botsettings.json');
