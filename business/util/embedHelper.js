@@ -1,7 +1,7 @@
 const Discord = require('discord.js');
 const scoresManager = require('./../ranking/scoresManager.js');
 const commandsDescriptions = require('./../commands/shared/commandsDescriptions.js');
-const mapper = require('./../config/mapper.js');
+const replayDataMapper = require('./../replaysParsing/replayDataMapper.js');
 
 module.exports = {
     botAvatarUrl:'',
@@ -143,7 +143,7 @@ module.exports = {
                                   username, 
                                   replayLocalPath, replayData){
 
-        let translatedMapData = mapper.translateMapData(replayData.mapPath);
+        let translatedMapData = replayDataMapper.translateMapData(replayData.mapPath);
 
         var date = new Date(null);
         date.setSeconds(replayData.duration); 
@@ -164,7 +164,7 @@ module.exports = {
             if(player.race.length === 0){
                 if(player.name.length > 0) observers.push(player.name);
             } else {
-                embed.addField(`Player ${slot}`, `${player.name} : ${mapper.mapRace(player.race)}`);
+                embed.addField(`Player ${slot}`, `${player.name} : ${replayDataMapper.mapRace(player.race)}`);
             }
             slot++;
         });
