@@ -7,7 +7,7 @@ let apiKey = {};
 
 try {
   // case dev local
-  apiKey = require('./private.local.js').env.apiKey;
+  apiKey = require('./conf/private.config.local.js').env.apiKey;
 } catch (ex) {
   // case deploy
   apiKey = process.env.apiKey;
@@ -16,7 +16,7 @@ try {
 const db = require('./business/dal/storage/sqliteStore.js');
 const embedHelper = require('./business/util/embedHelper.js');
 
-const botSettings = require('./botsettings.json');
+const botSettings = require('./conf/bot.settings.json');
 const gaemCommand = require('./business/commands/gaemCommand.js');
 const statCommand = require('./business/commands/statCommand.js');
 const topCommand = require('./business/commands/topCommand.js');
