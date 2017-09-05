@@ -1,10 +1,8 @@
-module.exports = {
-    "translateMapData": function(mapPath) {
+let unit = module.exports = {
+    "translateMapData": (mapPath) => {
         let fileName = mapPath.substr(mapPath.lastIndexOf('\\') + 1).toLowerCase();
-        
-        console.log(fileName);
 
-        switch(fileName) {
+        switch (fileName) {
             case '2p_abandon_all_hope': return { name: 'Abandon all hope', url: 'http://i.imgur.com/Q54Oi9L.jpg' };
             case '2p_absolute_zero': return { name: 'Absolute zero', url: 'http://i.imgur.com/b7yNS4t.jpg' };
             case '2p_battle_marshes': return { name: 'Battle marshes', url: 'http://i.imgur.com/VjbQkAc.jpg' };
@@ -102,23 +100,23 @@ module.exports = {
             case '2p_meeting_of_minds_pro_lis_v1': return { name: 'Meeting of minds pro', url: 'http://i.imgur.com/HKUE0ao.jpg' };
             case '2p_outer_reaches_remix': return { name: 'Outer reaches remix (Hype version)', url: 'http://i.imgur.com/TLLlV7l.jpg' };
             case '2p_refinery': return { name: 'Refinery', url: 'http://i.imgur.com/sFlILVy.jpg' };
-            default: return { name:'', url:'' };
+            default: return { name: '', url: '' };
         }
     },
-    "mapRace": function(raceIdentifier) {
-        switch(raceIdentifier) {
-            case 'chaos_marine_race' : return 'Chaos';
-            case 'eldar_race' : return 'Eldar';
-            case 'ork_race' : return 'Orks';
-            case 'space_marine_race' : return 'Space marines';
+    "mapRace": (raceIdentifier) => {
+        switch (raceIdentifier) {
+            case 'chaos_marine_race': return 'Chaos';
+            case 'eldar_race': return 'Eldar';
+            case 'ork_race': return 'Orks';
+            case 'space_marine_race': return 'Space marines';
 
-            case 'guard_race' : return 'Imperial guard';
-            
-            case 'necron_race' : return 'Necrons';
-            case 'tau_race' : return 'Tau';
-           
-            case 'sisters_race' : return 'Sisters of battle';
-            case 'dark_eldar_race' : return 'Dark Eldar';
+            case 'guard_race': return 'Imperial guard';
+
+            case 'necron_race': return 'Necrons';
+            case 'tau_race': return 'Tau';
+
+            case 'sisters_race': return 'Sisters of battle';
+            case 'dark_eldar_race': return 'Dark Eldar';
         }
     }
 }
