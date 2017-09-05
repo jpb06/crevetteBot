@@ -32,9 +32,9 @@ let unit = module.exports = {
     "populateLoadedNotification": () => {
         let embed = unit.generateGeneric()
             .setTitle('CrevetteBot successfully loaded')
-            .setDescription('I am now ready for action!\nCurrent commands are the following :');
+            .setDescription('I am now ready for action!\n\nType !help to see what I can do!');
 
-        return unit.populateCommandsDescription(embed);
+        return embed;
     },
     "populateHelp": () => {
         let embed = unit.generateGeneric()
