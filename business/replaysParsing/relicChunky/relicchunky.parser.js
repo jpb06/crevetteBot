@@ -1,40 +1,39 @@
-const fs = require ('fs');
+const fs = require('fs');
 
-const conversionHelper = require ('./../../util/conversionHelper.js')
+const conversionHelper = require('./../../util/conversion.helper.js')
 
-module.exports = {
-    "getReplayData": function(path, cb) {
-        var self = this;
-       
-        fs.readFile(path, function(err, data) {
+let unit = module.exports = {
+    "getReplayData": (path, cb) => {
+
+        fs.readFile(path, function (err, data) {
             let pos = 226;
 
-            pos += conversionHelper.byteArrayToLong(data.slice(pos, pos+4))+4;
-            let length = conversionHelper.byteArrayToLong(data.slice(pos, pos+4)); // length map name
-            let mapName = conversionHelper.readUTF16String(data.slice(pos+4, pos+4+length*2), true);
-            pos += length*2+4; 
-            
-            length = conversionHelper.byteArrayToLong(data.slice(pos, pos+4)); // map path length
-            pos +=4; 
+            pos += conversionHelper.byteArrayToLong(data.slice(pos, pos + 4)) + 4;
+            let length = conversionHelper.byteArrayToLong(data.slice(pos, pos + 4)); // length map name
+            let mapName = conversionHelper.readUTF16String(data.slice(pos + 4, pos + 4 + length * 2), true);
+            pos += length * 2 + 4;
 
-            let mapPath = conversionHelper.uintToString(data.slice(pos, pos+length));
+            length = conversionHelper.byteArrayToLong(data.slice(pos, pos + 4)); // map path length
+            pos += 4;
+
+            let mapPath = conversionHelper.uintToString(data.slice(pos, pos + length));
             pos += length;
 
-            pos += 16; 
+            pos += 16;
             //console.log(conversionHelper.uintToString(data.slice(pos, pos+8)));
             pos += 8; // DATABASE
-            pos += 32; 
+            pos += 32;
 
             pos += 61; // game options
 
-            length = conversionHelper.byteArrayToLong(data.slice(pos, pos+4)); // length replay name 
+            length = conversionHelper.byteArrayToLong(data.slice(pos, pos + 4)); // length replay name 
             // conversionHelper.readUTF16String(data.slice(pos+4, pos+4+length*2), true);
-            pos += length*2+4; 
+            pos += length * 2 + 4;
 
             pos += 4;
 
-            length = conversionHelper.byteArrayToLong(data.slice(pos, pos+4)); // length win conditions
-            pos += length+4;
+            length = conversionHelper.byteArrayToLong(data.slice(pos, pos + 4)); // length win conditions
+            pos += length + 4;
 
             let mapData = {
                 "mapName": mapName,
@@ -43,26 +42,26 @@ module.exports = {
                 "duration": 0
             };
             let players = [];
-            for(let i = 0; i < 8; i++) {
-                
-                let playerChunkData = self.readPlayerChunk(data, pos);
-                
+            for (let i = 0; i < 8; i++) {
+
+                let playerChunkData = unit.readPlayerChunk(data, pos);
+
                 //console.log(playerChunkData);
-                
+
                 players.push(playerChunkData.playerData);
                 pos = playerChunkData.nextPlayerChunkPos;
             }
 
             let lastTimeStamp = 0;
-            while(pos < data.length) {
-                let type = conversionHelper.byteArrayToLong(data.slice(pos, pos+4));
+            while (pos < data.length) {
+                let type = conversionHelper.byteArrayToLong(data.slice(pos, pos + 4));
                 pos += 4;
-                if(type === 0) {
-                    let actionData = self.readActionChunk(data, pos);
+                if (type === 0) {
+                    let actionData = unit.readActionChunk(data, pos);
                     lastTimeStamp = actionData[0];
                     pos = actionData[1];
-                } else if(type === 1) {
-                    pos = self.readChatChunk(data, pos);
+                } else if (type === 1) {
+                    pos = unit.readChatChunk(data, pos);
                 }
             }
 
@@ -72,14 +71,14 @@ module.exports = {
             mapData.duration = lastTimeStamp / 8;
 
             cb(mapData);
-       });
+        });
     },
-    "readPlayerChunk": function(data, pos) {
+    "readPlayerChunk": (data, pos) => {
         // 46 4f 4c 44 47 50 4c 59 = FOLDGPLY
-        while(true) {
-            if(data[pos]   === 70 && data[pos+1] === 79 && data[pos+2] === 76 && data[pos+3] === 68 &&
-            data[pos+4] === 71 && data[pos+5] === 80 && data[pos+6] === 76 && data[pos+7] === 89)
-            break;
+        while (true) {
+            if (data[pos] === 70 && data[pos + 1] === 79 && data[pos + 2] === 76 && data[pos + 3] === 68 &&
+                data[pos + 4] === 71 && data[pos + 5] === 80 && data[pos + 6] === 76 && data[pos + 7] === 89)
+                break;
 
             pos++;
         }
@@ -87,28 +86,28 @@ module.exports = {
 
         pos += 4;
         //console.log(data.slice(pos, pos+4));
-        let foldgplyLength = conversionHelper.byteArrayToLong(data.slice(pos, pos+4));
-        let foldgplyPos = pos+8;
+        let foldgplyLength = conversionHelper.byteArrayToLong(data.slice(pos, pos + 4));
+        let foldgplyPos = pos + 8;
 
         pos += 8;
         pos += 8; // DATAINFO
         pos += 12;
-        
-        length = conversionHelper.byteArrayToLong(data.slice(pos, pos+4)); // length player name
-        let player = conversionHelper.readUTF16String(data.slice(pos+4, pos+4+length*2), true);
 
-        pos += 4 + 2*length;
+        length = conversionHelper.byteArrayToLong(data.slice(pos, pos + 4)); // length player name
+        let player = conversionHelper.readUTF16String(data.slice(pos + 4, pos + 4 + length * 2), true);
+
+        pos += 4 + 2 * length;
 
         pos += 4; // player type
         pos += 4; // player team
 
-        length = conversionHelper.byteArrayToLong(data.slice(pos, pos+4)); // length player race
+        length = conversionHelper.byteArrayToLong(data.slice(pos, pos + 4)); // length player race
 
-        pos+=4;
-        let playerRace = conversionHelper.uintToString(data.slice(pos, pos+length));
-        pos+=length;
+        pos += 4;
+        let playerRace = conversionHelper.uintToString(data.slice(pos, pos + length));
+        pos += length;
 
-        pos+=61;
+        pos += 61;
         pos += 8; // FOLDTCUC
 
         pos += 12
@@ -122,43 +121,43 @@ module.exports = {
         //console.log(foldgplyPos);
         //console.log(foldgplyLength);
 
-        return { 
-            "nextPlayerChunkPos": foldgplyPos+foldgplyLength,
+        return {
+            "nextPlayerChunkPos": foldgplyPos + foldgplyLength,
             "playerData": {
                 name: player,
                 race: playerRace
-            } 
+            }
         };
     },
-    "readActionChunk": function(data, pos) {
+    "readActionChunk": (data, pos) => {
         //let type = conversionHelper.byteArrayToLong(data.slice(pos, pos+4));
-       // pos += 4;
-        let chunkLength = conversionHelper.byteArrayToLong(data.slice(pos, pos+4));
+        // pos += 4;
+        let chunkLength = conversionHelper.byteArrayToLong(data.slice(pos, pos + 4));
         pos += 4;
         let p = data[pos]; // should be 50 hex / 80 decimal
-        if(p !== 80) console.log('error at : '+pos);
+        if (p !== 80) console.log('error at : ' + pos);
         pos++;
-        let timestamp = conversionHelper.byteArrayToLong(data.slice(pos, pos+4));
+        let timestamp = conversionHelper.byteArrayToLong(data.slice(pos, pos + 4));
 
         // if(chunkLength > 17) {
 
         // } else {
-           
+
         // }
 
         pos += chunkLength - 1;
 
         return [timestamp, pos];
     },
-    "readChatChunk": function(data, pos) {
+    "readChatChunk": (data, pos) => {
         //let type = conversionHelper.byteArrayToLong(data.slice(pos, pos+4));
-       // pos += 4;
-        let chunkLength = conversionHelper.byteArrayToLong(data.slice(pos, pos+4));
+        // pos += 4;
+        let chunkLength = conversionHelper.byteArrayToLong(data.slice(pos, pos + 4));
         pos += 4;
         pos += 4; // always 1
         pos += 5;
 
-        let nameLength = conversionHelper.byteArrayToLong(data.slice(pos, pos+4));
+        let nameLength = conversionHelper.byteArrayToLong(data.slice(pos, pos + 4));
         pos += 4;
 
         //let playerName = '';
@@ -174,7 +173,7 @@ module.exports = {
         //let msgDest = conversionHelper.byteArrayToLong(data.slice(pos, pos+4)); // 0 = all, 1 = team
         pos += 4;
 
-        let msgLength = conversionHelper.byteArrayToLong(data.slice(pos, pos+4));
+        let msgLength = conversionHelper.byteArrayToLong(data.slice(pos, pos + 4));
         pos += 4;
         //let msg = conversionHelper.readUTF16String(data.slice(pos, pos+msgLength*2), true);
         pos += msgLength * 2;
