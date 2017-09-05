@@ -1,3 +1,4 @@
 conf/private.config.local.js
 node_modules/
 data/score.sqlite
+.vscode/
