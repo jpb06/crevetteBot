@@ -1,14 +1,32 @@
 const { Pool } = require('pg');
 
-const privateSettings = require('./../../../conf/private.config.local.js');
+let host = '', database = '', port = '', user = '', password = '', ssl = false;
+try {
+  // case dev local
+  let privateSettings = require('./../../../conf/private.config.local.js').env;
+
+  host = privateSettings.dbHost;
+  database = privateSettings.db;
+  port = privateSettings.port;
+  user = privateSettings.user;
+  password = privateSettings.password;
+} catch (ex) {
+  // case deploy
+  host = process.env.dbHost;
+  database = process.env.db;
+  port = process.env.port;
+  user = process.env.user;
+  password = process.env.password;
+  ssl = true;
+}
 
 const pool = new Pool({
-  host: privateSettings.env.dbHost,
-  database: privateSettings.env.db,
-  port: privateSettings.env.port,
-  user: privateSettings.env.user,
-  password: privateSettings.env.password,
-  //ssl:true
+  host: host,
+  database: database,
+  port: port,
+  user: user,
+  password: password,
+  ssl: ssl
 });
 
 let self = module.exports = {
