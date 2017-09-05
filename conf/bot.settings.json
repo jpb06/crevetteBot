@@ -2,6 +2,10 @@
     "prefix": "!",
     "defaultChannel": "bots-n-nuts",
     "adminChannel": "admin",
-    "replaysChannels": ["replays_official_release", "test-version-room"],
-    "downloadsFolder": "downloadedReplays"
+    "replaysChannels": [
+        "replays_official_release",
+        "test-version-room"
+    ],
+    "downloadsFolder": "downloadedReplays",
+    "dbase": "postgres"
 }
