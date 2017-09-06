@@ -126,7 +126,7 @@ let unit = module.exports = {
             .setColor(3447003)
             .setAuthor(authorName, authorAvatarUrl)
             .setTitle(`Top 10 players by ${by}`)
-            .setDescription('These are the best DoWpro players');
+            .setDescription(users.length === 0 ? 'There is not any player registered yet!' : 'These are the best DoWpro players');
 
         users.forEach((el, index) => {
             let ratio = scoresManager.calculateRatio(el.wins, el.losses);
