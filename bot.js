@@ -4,10 +4,12 @@ const client = new Discord.Client({
 });
 
 let apiKey = '';
+let local = false;
 
 try {
   // case dev local
   apiKey = require('./conf/private.config.local.js').env.apiKey;
+  local = true;
 } catch (ex) {
   // case deploy
   apiKey = process.env.apiKey;
@@ -33,10 +35,12 @@ client.on('ready', async () => {
 
   // await client.user.setGame(`on ${client.guilds.size} servers`);
 
-  client.guilds.forEach(guild => {
-    let channel = guild.channels.find(channel => channel.name === botSettings.defaultChannel);
-    channel.send({ tts: false, embed: embedHelper.populateLoadedNotification() });
-  });
+  if (!local) {
+    client.guilds.forEach(guild => {
+      let channel = guild.channels.find(channel => channel.name === botSettings.defaultChannel);
+      channel.send({ tts: false, embed: embedHelper.populateLoadedNotification() });
+    });
+  }
 
   dbase.createDatabase();
 
