@@ -35,12 +35,12 @@ client.on('ready', async () => {
 
   // await client.user.setGame(`on ${client.guilds.size} servers`);
 
-  if (!local) {
-    client.guilds.forEach(guild => {
-      let channel = guild.channels.find(channel => channel.name === botSettings.defaultChannel);
-      channel.send({ tts: false, embed: embedHelper.populateLoadedNotification() });
-    });
-  }
+  // if (!local) {
+  //   client.guilds.forEach(guild => {
+  //     let channel = guild.channels.find(channel => channel.name === botSettings.defaultChannel);
+  //     channel.send({ tts: false, embed: embedHelper.populateLoadedNotification() });
+  //   });
+  // }
 
   dbase.createDatabase();
 
